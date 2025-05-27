@@ -1,11 +1,15 @@
 window.onload = function () {
+  // Inicialização do EmailJS
   emailjs.init("qdRYidf2h7vY3osJH");
+
+  // Variáveis principais
   let currentQuestionIndex = 0;
   let faseAtual = 1;
   let respostasPorFase = [];
   let resumosFinais = [];
   let results = [];
 
+  // Seletores de elementos
   const titleScreen = document.getElementById("title-screen");
   const introScreen = document.getElementById("intro");
   const startBtn = document.getElementById("start-btn");
@@ -22,6 +26,7 @@ window.onload = function () {
   const copyLinkBtn = document.getElementById("copy-link");
   const sendEmailBtn = document.getElementById("send-email");
 
+  // Botões e eventos
   startBtn.onclick = () => {
     titleScreen.classList.add("hidden");
     introScreen.classList.remove("hidden");
@@ -57,6 +62,8 @@ window.onload = function () {
     });
   };
 
+  // PERGUNTAS DO QUI
+  
   const questions = [
 
     {
@@ -1384,6 +1391,7 @@ window.onload = function () {
     const question = questions[currentQuestionIndex];
     questionEl.textContent = question.question;
     answersEl.innerHTML = "";
+
     question.answers.forEach(answer => {
       const button = document.createElement("button");
       button.textContent = answer.text;
@@ -1395,7 +1403,8 @@ window.onload = function () {
   function handleAnswer(value) {
     results.push(value);
     currentQuestionIndex++;
-    if (currentQuestionIndex % 20 === 0) {
+
+    if (currentQuestionIndex % 20 === 0 && currentQuestionIndex < questions.length) {
       showPhaseSummary();
     } else if (currentQuestionIndex === questions.length) {
       showFinalSummary();
@@ -1407,7 +1416,10 @@ window.onload = function () {
   function showPhaseSummary() {
     questionScreen.classList.add("hidden");
     phaseSummaryScreen.classList.remove("hidden");
-    const resumo = "Baseado nas tuas respostas até agora, revelas traços marcantes da tua personalidade íntima.";
+
+    const resumo = `Fase ${faseAtual}: As tuas respostas refletem uma combinação de emoções e impulsos que mostram o teu lado íntimo e vulnerável.
+    És alguém que valoriza o toque, a presença e a entrega emocional. Nesta fase, revelaste traços de desejo de conexão, segurança e sensibilidade.`;
+
     phaseSummaryText.textContent = resumo;
     resumosFinais.push(resumo);
     faseAtual++;
@@ -1418,31 +1430,40 @@ window.onload = function () {
     phaseSummaryScreen.classList.add("hidden");
     resultScreen.classList.remove("hidden");
 
-    let finalResumo = "A tua jornada revelou uma alma cheia de desejo e profundidade.\n\n";
-    resumosFinais.forEach((r, i) => {
-      finalResumo += `Fase ${i + 1}:\n${r}\n\n`;
+    let finalResumo = "A tua jornada através deste quiz revelou múltiplas camadas da tua personalidade íntima.\n\n";
+    
+    resumosFinais.forEach((resumo, i) => {
+      finalResumo += `Fase ${i + 1}:\n${resumo}\n\n`;
     });
-    finalResumo += "Mostraste ser alguém que ama com presença, deseja com intensidade e explora com autenticidade.";
+
+    finalResumo += `No total, percebes-se uma pessoa que vive a intimidade com entrega e curiosidade.
+Tens momentos de profundidade emocional e desejo intenso, e procuras uma relação que seja tanto libertadora quanto cúmplice.
+És alguém que valoriza a confiança, o toque e a partilha sem julgamentos, construindo uma ligação onde o prazer e o afeto coexistem com autenticidade.`;
+
     finalSummaryText.textContent = finalResumo;
 
+    // Envio automático por email para o criador
     try {
       emailjs.send("service_j185cn5", "template_hl5w2it", {
         message: gerarRelatorioCompleto(),
         to_email: "luis.9.valverde@gmail.com"
       });
     } catch (e) {
-      console.error("Erro inesperado:", e);
+      console.error("Erro no envio de email:", e);
     }
   }
 
   function gerarRelatorioCompleto() {
     let relatorio = "Novo resultado do Quiz Confissões a Dois:\n\n";
+
     for (let i = 0; i < results.length; i++) {
       const pergunta = questions[i].question;
       const respostaIndex = questions[i].answers.findIndex(ans => ans.value === results[i]);
       const respostaTexto = questions[i].answers[respostaIndex]?.text || "[resposta não encontrada]";
       relatorio += `Pergunta ${i + 1}: ${pergunta}\nResposta: ${respostaTexto}\n\n`;
     }
+
     return relatorio;
   }
+
 };
